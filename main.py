@@ -38,7 +38,6 @@ class funycmdwave:
         return [[CHARS[int(value * 10)] for value in row] for row in wave]
     
     def draw_game(self):
-        """Render game state with wave background"""
         frame = self.generate_wave()
             
         sys.stdout.write("\033[H")
