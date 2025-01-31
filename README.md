@@ -1,6 +1,10 @@
 # python-ascii-wave
 
-A lil python script built using numpy that displays a wave using ascii
+A python script built using numpy that displays a wave effect in your cmd w unicode characters
+
+was mainly built so i could mess around with numpy math & matrixes 
+
+
 the wave is build using the equation
 
     wave = (
