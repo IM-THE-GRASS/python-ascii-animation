@@ -1,9 +1,14 @@
-# python-ascii-wave
 
-A python script built using numpy that displays a wave effect in your cmd w unicode characters
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/276fe645-428f-4107-97c4-036264ae1cc6" width="400">
+  <h1>python-cmd-clock</h1>
+    <h3>A python script built using numpy that displays a wave effect in your cmd w unicode characters and has a clock on top</h3>
+</div>
 
 was mainly built so i could mess around with numpy math & matrixes 
 
+### how it works:
 
 the wave is build using the equation
 
@@ -41,6 +46,9 @@ example xx matrix:
 ]
 ```
 
+
+
+after that it just puts a clock on top made out of █s that have the layout defined by `digits.py`
 
 
 
