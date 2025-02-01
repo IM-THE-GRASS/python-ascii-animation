@@ -1,57 +1,79 @@
-import sys
+import shutil
 import numpy as np
 import time
+import sys
+import wavey
+from digits import DIGITS
 
-
-
-
-
-CHARS = "·:-=+*#%@&▓█▄▀▌■"
-class funycmdwave:
+class Clock:
     def __init__(self):
-        self.width, self.height = 120, 50
-        
-        # wave parameters
-        self.time = 0
-        self.wave_speed = 1.5
-
-    def generate_wave(self):
-        # some funk ass math ;ol
-        # makes the grid, x and y are the 1d matrix of the coords and the xx and yy are like each pixel 
-        x = np.linspace(0, 7, self.width) 
-        y = np.linspace(0, 7, self.height)
-        xx, yy = np.meshgrid(x, y)
-        # print(xx.size)
-        # print(yy.size)
-        
-        wave = (
-            (np.cos(np.sqrt(xx**2 + yy**2) + self.time))+
-            (np.cos(self.time) * np.sqrt(xx**2 + yy**2))+
-            np.sin((xx + yy) * 1.5 + self.time * 0.7)+
-            np.sin((xx * yy) * -1.5 + self.time * -0.7)+
-            np.sin((xx * yy) * 8 + self.time * -0.9) 
-        )
-        
-        
-        
-        wave = (wave - wave.min()) / (wave.max() - wave.min())
-        return [[CHARS[int(value * 10)] for value in row] for row in wave]
+        try:
+            self.width, self.height = shutil.get_terminal_size((80, 24))
+        except:
+            self.width, self.height = 80, 24
+        self.x = np.linspace(0, 7, self.width) 
+        self.y = np.linspace(0, 7, self.height)
+        self.xx, self.yy = np.meshgrid(self.x, self.y)
+        self.bg = wavey.bg()
     
-    def draw_game(self):
-        frame = self.generate_wave()
-            
-        sys.stdout.write("\033[H")
-        sys.stdout.write("\n".join(["".join(row) for row in frame]))
+    def draw_big_clock(self, frame):
+        time_str = time.strftime("%I:%M %p")
+        rows = len(frame)
+        cols = len(frame[0]) if rows > 0 else 0
+        
+        clock_width = len(time_str) * 8 # every digit is 7 wide + 1 space
+        clock_height = 7
+        start_row = int((rows - clock_height) / 2)
+        start_col = int((cols - clock_width) / 2)
+        
+        if start_row < 0 or start_col < 0:
+            return frame  # toooo smallll
+        
+        for i, char in enumerate(time_str):
+            # print(char)
+            if char not in DIGITS:
+                continue
+            digit = DIGITS[char]
+            for y, line in enumerate(digit):
+                for x, block in enumerate(line):
+                    if block == '█':
+                        frame_row = start_row + y
+                        frame_col = start_col + x + (i * 8)
+                        if 0 <= frame_row < rows and 0 <= frame_col < cols:
+                            frame[frame_row] = (
+                                frame[frame_row][:frame_col] + # everything before
+                                "█" +
+                                frame[frame_row][frame_col+1:] # everything after
+                            )
+        return frame
+    def draw(self):
+        wave = self.bg.generate_wave(self.xx, self.yy)
+        frame = ["".join(row) for row in wave]
+        frame = self.draw_big_clock(frame)
+        
+        sys.stdout.write("\033[H")  # Move cursor home
+        sys.stdout.write("\n".join(frame))
         sys.stdout.flush()
-    
-        
-
-    def run(self):
+    def run (self):
         while True:
-            self.time += 0.1 * self.wave_speed
-            self.draw_game()
+            current_size = shutil.get_terminal_size().columns, shutil.get_terminal_size().lines
+            if current_size != (self.width, self.height):
+                try:
+                    self.width, self.height = shutil.get_terminal_size((80, 24))
+                except:
+                    self.width, self.height = 80, 24
+                x = np.linspace(0, 7, self.width) 
+                y = np.linspace(0, 7, self.height)
+                self.xx, self.yy = np.meshgrid(x, y)
+            
+            
+            
+            self.bg.time += 0.1 * 1
+            self.draw()
             time.sleep(0.05)
 
 if __name__ == "__main__":
-    game = funycmdwave()
-    game.run()
+    c = Clock()
+    c.run()
+    
+    
